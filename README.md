@@ -1,0 +1,171 @@
+# Riverbend Kennel — Website + Admin Dashboard
+
+Production codebase for a kennel website: Next.js 14 (App Router) + TypeScript,
+Tailwind CSS, Prisma + PostgreSQL, and NextAuth for the admin login.
+
+"Riverbend Kennel" is a placeholder name/brand throughout — swap it in
+`app/layout.tsx`, `components/SiteHeader.tsx`, and `components/SiteFooter.tsx`
+once you have a real kennel name, address, phone, and email.
+
+## What's built so far (Phase 1)
+
+- Full database schema (`prisma/schema.prisma`) covering every section in the
+  brief: dogs, studs, pedigrees, breeding programs, litters, waitlist,
+  announcements, blog, inquiries, testimonials, and newsletter — so later
+  phases don't require schema rewrites.
+- Public home page, pulling live (currently empty) data for featured dogs,
+  studs, litters, announcements, blog posts, and testimonials, with proper
+  empty states.
+- Public site shell: header/nav, footer, and placeholder pages for every
+  route in the nav (Dogs, Studs, Breeding, Litters, Pedigree, Announcements,
+  Blog, About, Contact) so nothing 404s while later phases are built.
+- Admin dashboard shell: secure login (NextAuth credentials against the
+  `AdminUser` table), a protected layout with sidebar navigation to every
+  section, and an overview page with live counts.
+- Newsletter signup, wired end-to-end to the database.
+
+## Phase 2 — Dogs for Sale (done)
+
+- Public listing at `/dogs` with filters for gender, breed, age (puppy/adult),
+  and availability (available/reserved/sold/all) — implemented as a plain
+  `GET` form, so it works without JavaScript.
+- Public detail page at `/dogs/[slug]` with a photo gallery, full profile
+  (breed, gender, age, color, weight, price, description, health notes), and
+  an inquiry form that saves straight to the `Inquiry` table.
+- Admin CRUD at `/admin/dogs`: add, edit, delete, and a one-click status
+  changer (available/reserved/sold) — all as real Server Actions, no separate
+  API routes needed.
+- Photos: drag-and-drop or click-to-browse upload straight from the admin
+  form, powered by Vercel Blob (files go directly from the browser to
+  storage, so there's no server-side file-size limit to worry about). A
+  "paste an image URL instead" fallback is still there for photos already
+  hosted elsewhere. Requires `BLOB_READ_WRITE_TOKEN` in `.env` — see setup
+  step 4 above.
+- Inquiries submitted from a dog's page are saved but not yet visible in the
+  admin dashboard — that lands with the Contact/Inquiry Management phase.
+
+## Coming in later phases (in the agreed order)
+
+Studs → Breeding Services → Pedigree → Announcements → Blog → Upcoming
+Litters + Waitlist → Contact/Inquiry management.
+
+## Local setup
+
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+2. **Set up a database.** Any PostgreSQL works. For a free hosted one:
+   - [Neon](https://neon.tech) or [Supabase](https://supabase.com) — create a
+     project, copy the connection string.
+
+3. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   Fill in `DATABASE_URL`, and generate `NEXTAUTH_SECRET` with:
+   ```bash
+   openssl rand -base64 32
+   ```
+
+4. **Set up photo uploads (Vercel Blob)**
+   - Go to your project on [vercel.com](https://vercel.com) → **Storage** tab →
+     **Create Database** → **Blob**.
+   - Copy the `BLOB_READ_WRITE_TOKEN` it gives you into `.env`.
+   - Don't have a Vercel project yet? You can create just the Blob store on
+     its own from the Vercel dashboard (Storage → Create) before deploying
+     anything — it works the same locally via `.env`.
+   - Without this token, admin photo uploads will fail — everything else
+     works fine without it.
+
+5. **Create the database tables**
+   ```bash
+   npm run db:push
+   ```
+
+6. **Create your first admin login**
+   ```bash
+   npm run db:seed
+   ```
+   This uses `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` from `.env` (or the
+   defaults in `prisma/seed.ts` if unset). Log in at `/admin/login` and note
+   there's no "change password" screen yet — that's worth adding before you
+   put this live, or reset it directly in the database.
+
+7. **Run the dev server**
+   ```bash
+   npm run dev
+   ```
+   Visit `http://localhost:3000` for the site and `/admin/login` for the
+   dashboard.
+
+## Deployment
+
+This is a standard Next.js + Prisma app, so it deploys cleanly to
+[Vercel](https://vercel.com) (recommended) or any Node host:
+
+1. Push this repo to GitHub.
+2. Import it into Vercel.
+3. Add the same environment variables from `.env` in the Vercel project
+   settings (use your production database's connection string, and set
+   `NEXTAUTH_URL` to your real domain).
+4. Deploy. Run `npm run db:push` and `npm run db:seed` once against the
+   production database (from your machine, pointed at the production
+   `DATABASE_URL`, or via a one-off Vercel deploy hook).
+
+## Project structure
+
+```
+app/
+  (site)/            Public pages — home, dogs, studs, etc. (share header/footer)
+  admin/
+    (auth)/login/    Admin sign-in (no sidebar)
+    (dashboard)/     Admin pages behind auth (sidebar chrome)
+  api/               Route handlers (auth, newsletter, and more as phases land)
+components/          Shared UI
+lib/                 Prisma client, auth config, formatting helpers
+prisma/              Database schema + seed script
+middleware.ts        Protects all /admin routes except /admin/login
+```
+
+## Design notes
+
+Palette: deep pine green (`#2F4030`) and near-black ink (`#1C2418`) against a
+warm parchment background (`#F6F2E9`), with a muted brass (`#A9812C`) accent —
+built to feel like a kennel club registry rather than a generic SaaS
+template. Headlines use Fraunces (serif), body text uses Work Sans. See
+`tailwind.config.ts` for the full token set.
+
+## All phases — status
+
+All nine build phases from the brief are implemented:
+
+1. Home + admin dashboard structure
+2. Dogs for sale (public + admin, drag-and-drop photo upload)
+3. Available studs (public + admin)
+4. Breeding services (public + admin, sire/dam pairing)
+5. Pedigree (3-generation chart editor + public display)
+6. Announcements (public feed + admin)
+7. Blog (categories, featured post, search, related articles + admin)
+8. Upcoming litters + waitlist (per-litter and general signup + admin)
+9. Contact / inquiry management (contact page + admin inbox)
+
+`About Us` is still a simple placeholder page (`app/(site)/about/page.tsx`) —
+it wasn't part of the nine build phases, so it's just waiting on real copy
+about the kennel. Everything else in the original brief's page list is live.
+
+### Known limitations worth knowing about
+
+- **Pedigree depth**: the editor supports 3 generations (the dog/stud, its
+  parents, and grandparents) — the data model supports deeper trees, but the
+  admin UI doesn't yet expose editing beyond grandparents.
+- **No "forgot password" flow**: if you lose the admin password, reset it
+  directly in the database (or re-run the seed script after deleting the
+  `AdminUser` row).
+- **Single admin role in practice**: the schema has a `role` field
+  (`ADMIN`/`EDITOR`) but nothing currently restricts EDITOR permissions —
+  every signed-in admin can do everything.
+- **Blog cover images** use a plain URL field rather than the drag-and-drop
+  uploader Dogs/Studs/Litters have — easy to add later using the same
+  `ImageUrlFields` pattern.

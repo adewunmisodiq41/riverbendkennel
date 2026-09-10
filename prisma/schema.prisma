@@ -1,0 +1,256 @@
+// Kennel Website — Database Schema
+// Run `npm run db:push` (quick start) or `npm run db:migrate` (versioned) after
+// setting DATABASE_URL in .env
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Auth ----------
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("ADMIN") // ADMIN | EDITOR
+  createdAt    DateTime @default(now())
+}
+
+// ---------- Dogs for Sale ----------
+
+enum DogGender {
+  MALE
+  FEMALE
+}
+
+enum DogStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+}
+
+model Dog {
+  id            String     @id @default(cuid())
+  name          String
+  slug          String     @unique
+  breed         String
+  gender        DogGender
+  birthDate     DateTime?
+  color         String?
+  weightLbs     Float?
+  priceCents    Int?
+  status        DogStatus  @default(AVAILABLE)
+  description   String?
+  healthNotes   String?
+  images        Image[]
+  pedigree      PedigreeEntry?
+  inquiries     Inquiry[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+// ---------- Available Studs ----------
+
+model Stud {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  breed         String
+  birthDate     DateTime?
+  color         String?
+  weightLbs     Float?
+  healthInfo    String?
+  achievements  String?
+  studFeeCents  Int?
+  isAvailable   Boolean   @default(true)
+  images        Image[]
+  pedigree      PedigreeEntry?
+  inquiries     Inquiry[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// ---------- Shared image gallery (polymorphic-ish via optional FKs) ----------
+
+model Image {
+  id        String   @id @default(cuid())
+  url       String
+  altText   String?
+  sortOrder Int      @default(0)
+  dogId     String?
+  dog       Dog?     @relation(fields: [dogId], references: [id], onDelete: Cascade)
+  studId    String?
+  stud      Stud?    @relation(fields: [studId], references: [id], onDelete: Cascade)
+  litterId  String?
+  litter    Litter?  @relation(fields: [litterId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+// ---------- Pedigree ----------
+// Each Dog/Stud can have one PedigreeEntry, which links to ancestor entries
+// (sire/dam), which themselves can be existing Dogs/Studs or free-text
+// historical ancestors with no live profile.
+
+model PedigreeEntry {
+  id           String          @id @default(cuid())
+  displayName  String
+  photoUrl     String?
+  titles       String?
+  dogId        String?         @unique
+  dog          Dog?            @relation(fields: [dogId], references: [id], onDelete: Cascade)
+  studId       String?         @unique
+  stud         Stud?           @relation(fields: [studId], references: [id], onDelete: Cascade)
+  sireId       String?
+  sire         PedigreeEntry?  @relation("SireOf", fields: [sireId], references: [id])
+  damId        String?
+  dam          PedigreeEntry?  @relation("DamOf", fields: [damId], references: [id])
+  sireOffspring PedigreeEntry[] @relation("SireOf")
+  damOffspring  PedigreeEntry[] @relation("DamOf")
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+// ---------- Breeding Services ----------
+
+model BreedingProgram {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  summary     String
+  body        String
+  sireId      String?
+  damId       String?
+  isFeatured  Boolean  @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ---------- Upcoming Litters ----------
+
+enum LitterStatus {
+  PLANNED
+  EXPECTING
+  BORN
+  ALL_RESERVED
+}
+
+model Litter {
+  id           String       @id @default(cuid())
+  sireName     String
+  damName      String
+  breed        String
+  expectedDate DateTime?
+  bornDate     DateTime?
+  status       LitterStatus @default(PLANNED)
+  description  String?
+  images       Image[]
+  waitlist     WaitlistEntry[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  litterId  String?
+  litter    Litter?  @relation(fields: [litterId], references: [id], onDelete: SetNull)
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+// ---------- Announcements ----------
+
+model Announcement {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  body        String
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// ---------- Blog ----------
+
+model BlogCategory {
+  id    String     @id @default(cuid())
+  name  String     @unique
+  slug  String     @unique
+  posts BlogPost[]
+}
+
+model BlogPost {
+  id           String        @id @default(cuid())
+  title        String
+  slug         String        @unique
+  excerpt      String
+  body         String
+  coverImage   String?
+  isFeatured   Boolean       @default(false)
+  isPublished  Boolean       @default(false)
+  publishedAt  DateTime?
+  categoryId   String?
+  category     BlogCategory? @relation(fields: [categoryId], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+// ---------- Contact / Inquiries ----------
+
+enum InquiryType {
+  DOG
+  STUD
+  BREEDING
+  GENERAL
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
+model Inquiry {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  type      InquiryType   @default(GENERAL)
+  message   String
+  status    InquiryStatus @default(NEW)
+  dogId     String?
+  dog       Dog?          @relation(fields: [dogId], references: [id], onDelete: SetNull)
+  studId    String?
+  stud      Stud?         @relation(fields: [studId], references: [id], onDelete: SetNull)
+  createdAt DateTime      @default(now())
+}
+
+// ---------- Testimonials ----------
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  quote     String
+  authorName String
+  location  String?
+  rating    Int      @default(5)
+  isFeatured Boolean @default(true)
+  createdAt DateTime @default(now())
+}
+
+// ---------- Newsletter ----------
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}

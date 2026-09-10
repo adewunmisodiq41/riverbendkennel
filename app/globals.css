@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  background-color: #F6F2E9;
+  color: #1C2418;
+}
+
+::selection {
+  background-color: #A9812C;
+  color: #F6F2E9;
+}
+
+/* Registry-mark frame used on the hero and section dividers, evoking a
+   kennel-club pedigree certificate without leaning on a generic card kit. */
+.registry-frame {
+  position: relative;
+}
+.registry-frame::before,
+.registry-frame::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: #A9812C;
+  top: -1px;
+}
+.registry-frame::before {
+  left: -1px;
+  border-left: 2px solid;
+  border-top: 2px solid;
+}
+.registry-frame::after {
+  right: -1px;
+  border-right: 2px solid;
+  border-top: 2px solid;
+}
+
+.reveal-on-scroll {
+  opacity: 0;
+}
+.reveal-on-scroll.is-visible {
+  animation: reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+:focus-visible {
+  outline: 2px solid #A9812C;
+  outline-offset: 2px;
+}
