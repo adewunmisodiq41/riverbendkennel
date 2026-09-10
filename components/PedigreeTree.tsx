@@ -1,18 +1,23 @@
-type Entry = {
+interface NodeLike {
   displayName: string;
   titles?: string | null;
   photoUrl?: string | null;
-} | null;
+}
 
-type FullEntry = Entry & {
-  sire?: Entry;
-  dam?: Entry;
-};
+interface ParentLike extends NodeLike {
+  sire?: NodeLike | null;
+  dam?: NodeLike | null;
+}
 
 export default function PedigreeTree({
   root
 }: {
-  root: { displayName: string; titles?: string | null; sire?: FullEntry; dam?: FullEntry };
+  root: {
+    displayName: string;
+    titles?: string | null;
+    sire?: ParentLike | null;
+    dam?: ParentLike | null;
+  };
 }) {
   const sire = root.sire ?? null;
   const dam = root.dam ?? null;
@@ -43,7 +48,7 @@ function Cell({
   emphasis = false,
   isRoot = false
 }: {
-  entry: Entry;
+  entry?: NodeLike | null;
   style: React.CSSProperties;
   emphasis?: boolean;
   isRoot?: boolean;
