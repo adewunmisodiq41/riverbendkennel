@@ -1,4 +1,13 @@
-type Entry = { displayName: string; titles?: string | null; photoUrl?: string | null } | null;
+interface NodeLike {
+  displayName: string;
+  titles?: string | null;
+  photoUrl?: string | null;
+}
+
+interface ParentLike extends NodeLike {
+  sire?: NodeLike | null;
+  dam?: NodeLike | null;
+}
 
 export default function PedigreeEditorForm({
   action,
@@ -9,8 +18,8 @@ export default function PedigreeEditorForm({
   subjectName: string;
   existing?: {
     titles?: string | null;
-    sire?: (Entry & { sire?: Entry; dam?: Entry }) | null;
-    dam?: (Entry & { sire?: Entry; dam?: Entry }) | null;
+    sire?: ParentLike | null;
+    dam?: ParentLike | null;
   } | null;
 }) {
   const sire = existing?.sire;
@@ -65,7 +74,7 @@ function PersonFields({
 }: {
   prefix: string;
   label: string;
-  entry?: Entry;
+  entry?: NodeLike | null;
   compact?: boolean;
 }) {
   return (
