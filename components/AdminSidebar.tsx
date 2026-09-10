@@ -11,7 +11,8 @@ const SECTIONS = [
   { href: "/admin/waitlist", label: "Waitlist" },
   { href: "/admin/announcements", label: "Announcements" },
   { href: "/admin/blog", label: "Blog" },
-  { href: "/admin/inquiries", label: "Inquiries" }
+  { href: "/admin/inquiries", label: "Inquiries" },
+  { href: "/admin/settings/admins", label: "Manage admins" }
 ];
 
 export default function AdminSidebar({ userName }: { userName?: string | null }) {
