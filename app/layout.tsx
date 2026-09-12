@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Work_Sans } from "next/font/google";
 import "./globals.css";
+import { getSettings } from "@/lib/actions/settings";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -17,14 +18,19 @@ const workSans = Work_Sans({
   display: "swap"
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Riverbend Kennel",
-    template: "%s | Riverbend Kennel"
-  },
-  description:
-    "A family kennel breeding for health, temperament, and pedigree — dogs and puppies for sale, available studs, and upcoming litters."
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings();
+
+  return {
+    title: {
+      default: settings.siteName,
+      template: `%s | ${settings.siteName}`
+    },
+    description:
+      "A family kennel breeding for health, temperament, and pedigree — dogs and puppies for sale, available studs, and upcoming litters.",
+    icons: settings.logoUrl ? { icon: settings.logoUrl } : undefined
+  };
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
