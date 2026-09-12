@@ -1,13 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
+import { getSettings } from "@/lib/actions/settings";
 import { formatPrice, formatAge, formatDate } from "@/lib/format";
 import Button from "@/components/Button";
 import RevealSection from "@/components/RevealSection";
 import NewsletterForm from "@/components/NewsletterForm";
 
 export default async function HomePage() {
-  const [dogs, studs, litters, announcements, posts, testimonials, program] = await Promise.all([
+  const [settings, dogs, studs, litters, announcements, posts, testimonials, program] = await Promise.all([
+    getSettings(),
     prisma.dog.findMany({
       where: { status: "AVAILABLE" },
       orderBy: { createdAt: "desc" },
@@ -45,7 +47,7 @@ export default async function HomePage() {
       <section className="border-b border-mist bg-paper">
         <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 md:grid-cols-2 md:items-center md:py-28">
           <div>
-            <p className="font-display text-lg italic text-brass">Riverbend Kennel</p>
+            <p className="font-display text-lg italic text-brass">{settings.siteName}</p>
             <h1 className="mt-4 font-display text-4xl leading-tight text-ink md:text-5xl">
               Three generations of health testing behind every puppy we place.
             </h1>
