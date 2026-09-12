@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 
 const NAV_LINKS = [
@@ -15,14 +16,17 @@ const NAV_LINKS = [
   { href: "/contact", label: "Contact" }
 ];
 
-export default function SiteHeader() {
+export default function SiteHeader({ siteName, logoUrl }: { siteName: string; logoUrl?: string | null }) {
   const [open, setOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 border-b border-mist bg-paper/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="font-display text-xl font-medium text-ink">
-          Riverbend Kennel
+        <Link href="/" className="flex items-center gap-2 font-display text-xl font-medium text-ink">
+          {logoUrl && (
+            <Image src={logoUrl} alt={siteName} width={32} height={32} className="h-8 w-8 object-contain" />
+          )}
+          {siteName}
         </Link>
 
         <nav className="hidden items-center gap-6 lg:flex">
