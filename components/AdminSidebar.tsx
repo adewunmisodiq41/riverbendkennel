@@ -12,14 +12,16 @@ const SECTIONS = [
   { href: "/admin/announcements", label: "Announcements" },
   { href: "/admin/blog", label: "Blog" },
   { href: "/admin/inquiries", label: "Inquiries" },
+  { href: "/admin/about", label: "About Us page" },
+  { href: "/admin/settings/branding", label: "Branding" },
   { href: "/admin/settings/admins", label: "Manage admins" }
 ];
 
-export default function AdminSidebar({ userName }: { userName?: string | null }) {
+export default function AdminSidebar({ userName, siteName }: { userName?: string | null; siteName: string }) {
   return (
     <aside className="flex w-64 shrink-0 flex-col bg-ink text-paper">
       <div className="px-6 py-6">
-        <p className="font-display text-lg">Riverbend Kennel</p>
+        <p className="font-display text-lg">{siteName}</p>
         <p className="mt-0.5 text-xs uppercase tracking-wide text-paper/40">Admin</p>
       </div>
 
