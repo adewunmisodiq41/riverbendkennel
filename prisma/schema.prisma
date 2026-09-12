@@ -13,6 +13,25 @@ datasource db {
 
 // ---------- Auth ----------
 
+// ---------- Site branding (singleton — always fetched/updated by id: "settings") ----------
+
+model Settings {
+  id        String   @id @default("settings")
+  siteName  String   @default("My Kennel")
+  logoUrl   String?
+  updatedAt DateTime @updatedAt
+}
+
+// ---------- About page (singleton — always fetched/updated by id: "about") ----------
+
+model AboutPage {
+  id        String   @id @default("about")
+  heading   String
+  body      String
+  photoUrl  String?
+  updatedAt DateTime @updatedAt
+}
+
 model AdminUser {
   id           String   @id @default(cuid())
   name         String
