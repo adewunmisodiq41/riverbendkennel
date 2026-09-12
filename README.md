@@ -169,3 +169,35 @@ about the kennel. Everything else in the original brief's page list is live.
 - **Blog cover images** use a plain URL field rather than the drag-and-drop
   uploader Dogs/Studs/Litters have — easy to add later using the same
   `ImageUrlFields` pattern.
+
+## Branding, Admin Management, and About Us (added after initial launch)
+
+- **Branding** (`/admin/settings/branding`): change the business name and
+  upload a logo, used site-wide (header, footer, admin sidebar) and as the
+  browser tab icon/favicon.
+- **Manage admins** (`/admin/settings/admins`): add or remove admin logins
+  from the dashboard — no more editing the database by hand. You can't
+  remove yourself while signed in, or remove the last remaining admin.
+- **About Us** (`/admin/about`): fully editable heading, story text, and an
+  optional photo — no longer a static placeholder.
+
+**Deploying these**: these three features added two new database tables
+(`Settings` and `AboutPage`). After pushing the code, you must also run
+`npm run db:push` against your database once — otherwise these pages will
+error even though the code deployed successfully.
+
+## Photo upload — how it actually works (revised)
+
+The original version used Vercel Blob's *direct-to-storage client upload*
+flow (browser talks to Blob storage directly using a short-lived token).
+That triggered a CORS/400 error in production for reasons that weren't
+fully diagnosable without deeper access to the deployed environment.
+
+It's since been switched to a simpler, more reliable pattern: the browser
+uploads the file to our own `/api/upload` route as a normal `multipart/form-data`
+POST, and the server calls Vercel Blob's `put()` directly. This trades away
+one thing — **files are capped at 4MB** (Vercel's serverless function
+request body limit) instead of the original 15MB — for something that
+actually works reliably. If you need larger uploads later, revisiting the
+direct-to-client-storage approach (or compressing images client-side before
+upload) are the two paths to explore.
