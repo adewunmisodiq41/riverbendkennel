@@ -1,13 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { upload } from "@vercel/blob/client";
 import Image from "next/image";
 
 type Row = {
   url: string;
   altText: string;
   status: "done" | "uploading" | "error";
+  errorMessage?: string;
 };
 
 export default function ImageUrlFields({
@@ -38,15 +38,22 @@ export default function ImageUrlFields({
       list.map(async (file, i) => {
         const rowIndex = startIndex + i;
         try {
-          const blob = await upload(file.name, file, {
-            access: "public",
-            handleUploadUrl: "/api/upload"
-          });
+          const body = new FormData();
+          body.append("file", file);
+          const res = await fetch("/api/upload", { method: "POST", body });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Upload failed.");
           setRows((prev) =>
-            prev.map((r, idx) => (idx === rowIndex ? { ...r, url: blob.url, status: "done" } : r))
+            prev.map((r, idx) => (idx === rowIndex ? { ...r, url: data.url, status: "done" } : r))
           );
-        } catch {
-          setRows((prev) => prev.map((r, idx) => (idx === rowIndex ? { ...r, status: "error" } : r)));
+        } catch (err) {
+          setRows((prev) =>
+            prev.map((r, idx) =>
+              idx === rowIndex
+                ? { ...r, status: "error", errorMessage: err instanceof Error ? err.message : "Upload failed." }
+                : r
+            )
+          );
         }
       })
     );
@@ -79,7 +86,6 @@ export default function ImageUrlFields({
     <div className="space-y-4">
       <label className="text-sm text-ink/70">Photos</label>
 
-      {/* Drop zone */}
       <div
         onDragOver={(e) => {
           e.preventDefault();
@@ -93,7 +99,7 @@ export default function ImageUrlFields({
         }`}
       >
         <p className="text-ink/70">Drag photos here, or click to browse</p>
-        <p className="mt-1 text-xs text-ink/40">JPG, PNG, WEBP, or GIF — up to 15MB each</p>
+        <p className="mt-1 text-xs text-ink/40">JPG, PNG, WEBP, or GIF — up to 4MB each</p>
         <input
           ref={fileInputRef}
           type="file"
@@ -104,7 +110,6 @@ export default function ImageUrlFields({
         />
       </div>
 
-      {/* Uploaded / manual rows */}
       {rows.length > 0 && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {rows.map((row, i) => (
@@ -116,8 +121,8 @@ export default function ImageUrlFields({
                   </div>
                 )}
                 {row.status === "error" && (
-                  <div className="flex h-full items-center justify-center text-xs text-red-600">
-                    Failed
+                  <div className="flex h-full items-center justify-center p-2 text-center text-xs text-red-600">
+                    {row.errorMessage ?? "Failed"}
                   </div>
                 )}
                 {row.status === "done" &&
@@ -132,13 +137,7 @@ export default function ImageUrlFields({
                     />
                   ) : null)}
               </div>
-              <input
-                type="text"
-                name="imageUrl"
-                value={row.url}
-                readOnly
-                hidden
-              />
+              <input type="text" name="imageUrl" value={row.url} readOnly hidden />
               <input
                 type="text"
                 name="imageAlt"
