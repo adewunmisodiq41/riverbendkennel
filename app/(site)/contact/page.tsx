@@ -1,8 +1,11 @@
 import InquiryForm from "@/components/InquiryForm";
+import { getSettings } from "@/lib/actions/settings";
 
 export const metadata = { title: "Contact us" };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const settings = await getSettings();
+
   return (
     <section className="mx-auto max-w-5xl px-6 py-16">
       <h1 className="font-display text-4xl text-ink">Contact us</h1>
@@ -13,7 +16,7 @@ export default function ContactPage() {
 
       <div className="mt-10 grid gap-12 md:grid-cols-[1.3fr,1fr]">
         <div>
-          <InquiryForm type="GENERAL" subjectLabel="Riverbend Kennel" />
+          <InquiryForm type="GENERAL" subjectLabel={settings.siteName} />
         </div>
 
         <div className="space-y-8 border-t border-mist pt-8 md:border-t-0 md:border-l md:pl-12 md:pt-0">
