@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 
 type VideoData = {
   id: string;
@@ -55,36 +54,23 @@ export default function VideoCard({
       onClick={handleTap}
       className="group relative w-64 shrink-0 cursor-pointer snap-start overflow-hidden rounded-2xl border border-mist bg-paperdim transition-transform duration-300 hover:scale-[1.02] sm:w-72"
     >
-      <div className="relative aspect-[9/16] w-full overflow-hidden">
+      <div className="relative aspect-[9/16] w-full overflow-hidden bg-ink/10">
+        {/* Always visible: shows the uploaded thumbnail if set, otherwise the
+            video's own first frame (native `poster` + preload behavior), so
+            the card never looks blank before it's played. */}
         <video
           ref={videoRef}
           src={video.videoUrl}
+          poster={video.thumbnailUrl ?? undefined}
           muted
           loop
           playsInline
           preload="metadata"
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-            isPlaying ? "opacity-100" : "opacity-0"
-          }`}
+          className="absolute inset-0 h-full w-full object-cover"
         />
 
-        {video.thumbnailUrl ? (
-          <Image
-            src={video.thumbnailUrl}
-            alt={video.title}
-            fill
-            className={`object-cover transition-opacity duration-300 ${isPlaying ? "opacity-0" : "opacity-100"}`}
-          />
-        ) : (
-          !isPlaying && (
-            <div className="absolute inset-0 flex items-center justify-center bg-ink/5 text-sm text-ink/30">
-              {video.title}
-            </div>
-          )
-        )}
-
         {!isPlaying && (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-ink/70 text-paper transition-transform duration-300 group-hover:scale-110">
               ▶
             </div>
