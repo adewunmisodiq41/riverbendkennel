@@ -13,6 +13,16 @@ datasource db {
 
 // ---------- Auth ----------
 
+// ---------- Homepage hero content (singleton — id: "homepage") ----------
+
+model HomepageContent {
+  id           String   @id @default("homepage")
+  heroHeadline String   @default("Three generations of health testing behind every puppy we place.")
+  heroSubtext  String   @default("We breed a small number of litters a year, screen every parent, and place each puppy with a family we've actually spoken with. Look through our current dogs, studs, and upcoming litters below.")
+  heroPhotoUrl String?
+  updatedAt    DateTime @updatedAt
+}
+
 // ---------- Site branding (singleton — always fetched/updated by id: "settings") ----------
 
 model Settings {
