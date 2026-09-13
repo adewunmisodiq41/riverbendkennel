@@ -2,14 +2,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/actions/settings";
+import { getHomepageContent } from "@/lib/actions/homepage";
 import { formatPrice, formatAge, formatDate } from "@/lib/format";
 import Button from "@/components/Button";
-import RevealSection from "@/components/RevealSection";
 import NewsletterForm from "@/components/NewsletterForm";
 
 export default async function HomePage() {
-  const [settings, dogs, studs, litters, announcements, posts, testimonials, program] = await Promise.all([
+  const [settings, homepage, dogs, studs, litters, announcements, posts, testimonials, program] = await Promise.all([
     getSettings(),
+    getHomepageContent(),
     prisma.dog.findMany({
       where: { status: "AVAILABLE" },
       orderBy: { createdAt: "desc" },
@@ -49,12 +50,10 @@ export default async function HomePage() {
           <div>
             <p className="font-display text-lg italic text-brass">{settings.siteName}</p>
             <h1 className="mt-4 font-display text-4xl leading-tight text-ink md:text-5xl">
-              Three generations of health testing behind every puppy we place.
+              {homepage.heroHeadline}
             </h1>
             <p className="mt-6 max-w-prose text-base text-ink/70">
-              We breed a small number of litters a year, screen every parent, and place each
-              puppy with a family we've actually spoken with. Look through our current dogs,
-              studs, and upcoming litters below.
+              {homepage.heroSubtext}
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Button href="/dogs">View dogs for sale</Button>
@@ -63,16 +62,25 @@ export default async function HomePage() {
           </div>
 
           <div className="registry-frame border border-mist bg-paperdim p-2">
-            <div className="flex aspect-[4/5] items-center justify-center bg-pine/5 text-sm text-ink/40">
-              Featured kennel photo
-            </div>
+            {homepage.heroPhotoUrl ? (
+              <Image
+                src={homepage.heroPhotoUrl}
+                alt={settings.siteName}
+                width={640}
+                height={800}
+                className="aspect-[4/5] w-full object-cover"
+              />
+            ) : (
+              <div className="flex aspect-[4/5] items-center justify-center bg-pine/5 text-sm text-ink/40">
+                Featured kennel photo
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* FEATURED DOGS */}
-      <RevealSection>
-        <section className="mx-auto max-w-6xl px-6 py-20">
+      <section className="mx-auto max-w-6xl px-6 py-20">
           <div className="flex items-end justify-between gap-4">
             <h2 className="font-display text-3xl text-ink">Dogs for sale</h2>
             <Link href="/dogs" className="text-sm text-brass hover:text-brasslight">
@@ -115,11 +123,9 @@ export default async function HomePage() {
             </div>
           )}
         </section>
-      </RevealSection>
 
       {/* FEATURED STUDS */}
-      <RevealSection>
-        <section className="border-t border-mist bg-paperdim">
+      <section className="border-t border-mist bg-paperdim">
           <div className="mx-auto max-w-6xl px-6 py-20">
             <div className="flex items-end justify-between gap-4">
               <h2 className="font-display text-3xl text-ink">Available studs</h2>
@@ -166,11 +172,9 @@ export default async function HomePage() {
             )}
           </div>
         </section>
-      </RevealSection>
 
       {/* BREEDING SERVICES */}
-      <RevealSection>
-        <section className="mx-auto max-w-6xl px-6 py-20">
+      <section className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="font-display text-3xl text-ink">Breeding services</h2>
           <div className="mt-6 grid gap-10 md:grid-cols-2 md:items-center">
             <p className="max-w-prose text-ink/70">
@@ -182,11 +186,9 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
-      </RevealSection>
 
       {/* UPCOMING LITTERS */}
-      <RevealSection>
-        <section className="border-t border-mist bg-pine text-paper">
+      <section className="border-t border-mist bg-pine text-paper">
           <div className="mx-auto max-w-6xl px-6 py-20">
             <div className="flex items-end justify-between gap-4">
               <h2 className="font-display text-3xl">Upcoming litters</h2>
@@ -217,11 +219,9 @@ export default async function HomePage() {
             )}
           </div>
         </section>
-      </RevealSection>
 
       {/* ANNOUNCEMENTS + BLOG */}
-      <RevealSection>
-        <section className="mx-auto max-w-6xl px-6 py-20">
+      <section className="mx-auto max-w-6xl px-6 py-20">
           <div className="grid gap-16 md:grid-cols-2">
             <div>
               <div className="flex items-end justify-between gap-4">
@@ -270,12 +270,10 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
-      </RevealSection>
 
       {/* TESTIMONIALS */}
       {testimonials.length > 0 && (
-        <RevealSection>
-          <section className="border-t border-mist bg-paperdim">
+        <section className="border-t border-mist bg-paperdim">
             <div className="mx-auto max-w-6xl px-6 py-20">
               <h2 className="font-display text-3xl text-ink">What families say</h2>
               <div className="mt-8 grid gap-8 md:grid-cols-2">
@@ -291,7 +289,6 @@ export default async function HomePage() {
               </div>
             </div>
           </section>
-        </RevealSection>
       )}
 
       {/* NEWSLETTER */}
