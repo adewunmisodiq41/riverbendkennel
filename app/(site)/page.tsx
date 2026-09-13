@@ -6,41 +6,44 @@ import { getHomepageContent } from "@/lib/actions/homepage";
 import { formatPrice, formatAge, formatDate } from "@/lib/format";
 import Button from "@/components/Button";
 import NewsletterForm from "@/components/NewsletterForm";
+import VideoShowcase from "@/components/VideoShowcase";
 
 export default async function HomePage() {
-  const [settings, homepage, dogs, studs, litters, announcements, posts, testimonials, program] = await Promise.all([
-    getSettings(),
-    getHomepageContent(),
-    prisma.dog.findMany({
-      where: { status: "AVAILABLE" },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-      include: { images: { take: 1, orderBy: { sortOrder: "asc" } } }
-    }),
-    prisma.stud.findMany({
-      where: { isAvailable: true },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-      include: { images: { take: 1, orderBy: { sortOrder: "asc" } } }
-    }),
-    prisma.litter.findMany({
-      orderBy: { expectedDate: "asc" },
-      take: 3,
-      include: { images: { take: 1, orderBy: { sortOrder: "asc" } } }
-    }),
-    prisma.announcement.findMany({
-      where: { isPublished: true },
-      orderBy: { publishedAt: "desc" },
-      take: 3
-    }),
-    prisma.blogPost.findMany({
-      where: { isPublished: true },
-      orderBy: { publishedAt: "desc" },
-      take: 3
-    }),
-    prisma.testimonial.findMany({ where: { isFeatured: true }, take: 4 }),
-    prisma.breedingProgram.findFirst({ where: { isFeatured: true } })
-  ]);
+  const [settings, homepage, videos, dogs, studs, litters, announcements, posts, testimonials, program] =
+    await Promise.all([
+      getSettings(),
+      getHomepageContent(),
+      prisma.video.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
+      prisma.dog.findMany({
+        where: { status: "AVAILABLE" },
+        orderBy: { createdAt: "desc" },
+        take: 3,
+        include: { images: { take: 1, orderBy: { sortOrder: "asc" } } }
+      }),
+      prisma.stud.findMany({
+        where: { isAvailable: true },
+        orderBy: { createdAt: "desc" },
+        take: 3,
+        include: { images: { take: 1, orderBy: { sortOrder: "asc" } } }
+      }),
+      prisma.litter.findMany({
+        orderBy: { expectedDate: "asc" },
+        take: 3,
+        include: { images: { take: 1, orderBy: { sortOrder: "asc" } } }
+      }),
+      prisma.announcement.findMany({
+        where: { isPublished: true },
+        orderBy: { publishedAt: "desc" },
+        take: 3
+      }),
+      prisma.blogPost.findMany({
+        where: { isPublished: true },
+        orderBy: { publishedAt: "desc" },
+        take: 3
+      }),
+      prisma.testimonial.findMany({ where: { isFeatured: true }, take: 4 }),
+      prisma.breedingProgram.findFirst({ where: { isFeatured: true } })
+    ]);
 
   return (
     <>
@@ -78,6 +81,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* FEATURED VIDEOS */}
+      <VideoShowcase videos={videos} />
 
       {/* FEATURED DOGS */}
       <section className="mx-auto max-w-6xl px-6 py-20">
