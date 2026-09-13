@@ -201,3 +201,17 @@ request body limit) instead of the original 15MB — for something that
 actually works reliably. If you need larger uploads later, revisiting the
 direct-to-client-storage approach (or compressing images client-side before
 upload) are the two paths to explore.
+
+## Homepage animation bug (fixed) + Homepage content editor (new)
+
+The scroll-triggered fade-in animation on homepage sections was causing a
+serious visual bug: with little or no real content added yet (no dogs,
+studs, litters, etc.), several short sections stacked up while still
+"waiting" to fade in, looking like one large blank dead zone on the page.
+The animation has been removed from the homepage entirely — all sections
+now render immediately and visibly.
+
+Also added: **Homepage content** (`/admin/homepage`) — edit the hero
+headline, subtext, and photo without touching code. This adds one more new
+database table (`HomepageContent`), so — like the other recent additions —
+remember to run `npm run db:push` after deploying this update.
