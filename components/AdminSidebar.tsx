@@ -4,6 +4,7 @@ import SignOutButton from "@/components/SignOutButton";
 const SECTIONS = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/homepage", label: "Homepage content" },
+  { href: "/admin/videos", label: "Featured videos" },
   { href: "/admin/dogs", label: "Dogs for sale" },
   { href: "/admin/studs", label: "Studs" },
   { href: "/admin/breeding", label: "Breeding services" },
