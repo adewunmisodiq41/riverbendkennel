@@ -3,7 +3,15 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 
-export default function LogoUpload({ initialUrl }: { initialUrl?: string | null }) {
+export default function LogoUpload({
+  initialUrl,
+  label = "Logo (used as the site icon and in the header)",
+  fieldName = "logoUrl"
+}: {
+  initialUrl?: string | null;
+  label?: string;
+  fieldName?: string;
+}) {
   const [url, setUrl] = useState(initialUrl ?? "");
   const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -36,7 +44,7 @@ export default function LogoUpload({ initialUrl }: { initialUrl?: string | null 
 
   return (
     <div>
-      <label className="text-sm text-ink/70">Logo (used as the site icon and in the header)</label>
+      <label className="text-sm text-ink/70">{label}</label>
 
       <div className="mt-2 flex items-center gap-4">
         <div
@@ -54,7 +62,7 @@ export default function LogoUpload({ initialUrl }: { initialUrl?: string | null 
           {status === "uploading" ? (
             <span className="text-ink/40">Uploading…</span>
           ) : url ? (
-            <Image src={url} alt="Logo" width={96} height={96} className="h-full w-full object-contain p-2" />
+            <Image src={url} alt="" width={96} height={96} className="h-full w-full object-contain p-2" />
           ) : (
             <span className="text-ink/40">Drop or click</span>
           )}
@@ -66,7 +74,7 @@ export default function LogoUpload({ initialUrl }: { initialUrl?: string | null 
             onClick={() => fileInputRef.current?.click()}
             className="text-brass hover:text-brasslight"
           >
-            {url ? "Replace logo" : "Upload a logo"}
+            {url ? "Replace" : "Upload"}
           </button>
           {url && (
             <button type="button" onClick={() => setUrl("")} className="ml-4 text-ink/40 hover:text-red-600">
@@ -84,7 +92,7 @@ export default function LogoUpload({ initialUrl }: { initialUrl?: string | null 
         className="hidden"
         onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0])}
       />
-      <input type="hidden" name="logoUrl" value={url} />
+      <input type="hidden" name={fieldName} value={url} />
     </div>
   );
 }
