@@ -13,6 +13,21 @@ datasource db {
 
 // ---------- Auth ----------
 
+// ---------- Featured Videos (homepage video showcase) ----------
+
+model Video {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  videoUrl        String
+  thumbnailUrl    String?
+  durationSeconds Int?
+  sortOrder       Int      @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
 // ---------- Homepage hero content (singleton — id: "homepage") ----------
 
 model HomepageContent {
