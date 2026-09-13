@@ -215,3 +215,38 @@ Also added: **Homepage content** (`/admin/homepage`) — edit the hero
 headline, subtext, and photo without touching code. This adds one more new
 database table (`HomepageContent`), so — like the other recent additions —
 remember to run `npm run db:push` after deploying this update.
+
+## Featured Videos (new)
+
+A homepage video showcase — a horizontally scrolling row of hover-to-play
+video cards ("See Our Kennel"), fully managed from the admin dashboard.
+
+**How it works:**
+- Desktop: hovering a card plays it (muted, looping); moving to another
+  card pauses the first and plays the new one — only one plays at a time.
+- Touch devices: tapping a card plays/pauses it instead (hover doesn't
+  exist on touch, so this is detected automatically).
+- A video with no thumbnail just shows its title as a placeholder until
+  played.
+
+**Uploading a video** (`/admin/videos` → "Add a video"):
+1. Enter a title and optional description.
+2. Drag in (or click to browse) the video file itself — MP4, WebM, or MOV,
+   up to 500MB. This uploads directly from your browser to storage (not
+   through the server), which is why it can handle much larger files than
+   photo uploads. Duration is detected automatically.
+3. Optionally upload a thumbnail image — shown before the video plays.
+4. Leave "Show on the homepage" checked (or uncheck to save a draft without
+   publishing it yet).
+5. Save. It appears at the end of the homepage row immediately.
+
+**Reordering**: on the `/admin/videos` list, use the ▲/▼ arrows next to
+each video — the order there is exactly the order visitors see on the
+homepage. (Drag-and-drop wasn't added to avoid pulling in an extra
+library just for this — the arrows do the same job.)
+
+**Hiding without deleting**: use the "Shown/Hidden" dropdown on each video
+to pull it from the homepage without losing the upload.
+
+This adds one more new database table (`Video`) — remember the now-familiar
+step: after deploying, run `npm run db:push` once.
