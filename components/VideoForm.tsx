@@ -1,5 +1,4 @@
 import VideoFileUpload from "@/components/VideoFileUpload";
-import LogoUpload from "@/components/LogoUpload";
 import type { Video } from "@prisma/client";
 
 export default function VideoForm({
@@ -21,12 +20,10 @@ export default function VideoForm({
         <textarea name="description" rows={3} defaultValue={video?.description ?? ""} className={inputClass} />
       </Field>
 
-      <VideoFileUpload initialUrl={video?.videoUrl} initialDurationSeconds={video?.durationSeconds} />
-
-      <LogoUpload
-        initialUrl={video?.thumbnailUrl}
-        label="Thumbnail (shown before the video plays)"
-        fieldName="thumbnailUrl"
+      <VideoFileUpload
+        initialUrl={video?.videoUrl}
+        initialThumbnailUrl={video?.thumbnailUrl}
+        initialDurationSeconds={video?.durationSeconds}
       />
 
       <label className="flex items-center gap-2 text-sm text-ink/70">
