@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 type VideoData = {
   id: string;
@@ -14,20 +14,19 @@ type VideoData = {
 export default function VideoCard({
   video,
   isPlaying,
+  hoverCapable,
   onPlay,
-  onStop
+  onStop,
+  cardRef
 }: {
   video: VideoData;
   isPlaying: boolean;
+  hoverCapable: boolean;
   onPlay: () => void;
   onStop: () => void;
+  cardRef?: (el: HTMLDivElement | null) => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [hoverCapable, setHoverCapable] = useState(true);
-
-  useEffect(() => {
-    setHoverCapable(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
-  }, []);
 
   useEffect(() => {
     const el = videoRef.current;
@@ -42,6 +41,9 @@ export default function VideoCard({
   }, [isPlaying]);
 
   function handleTap() {
+    // On touch devices, scroll position drives playback automatically —
+    // tapping is just a manual override in case someone wants to pause or
+    // restart a specific card.
     if (hoverCapable) return;
     if (isPlaying) onStop();
     else onPlay();
@@ -49,15 +51,14 @@ export default function VideoCard({
 
   return (
     <div
+      ref={cardRef}
+      data-video-id={video.id}
       onMouseEnter={hoverCapable ? onPlay : undefined}
       onMouseLeave={hoverCapable ? onStop : undefined}
       onClick={handleTap}
       className="group relative w-64 shrink-0 cursor-pointer snap-start overflow-hidden rounded-2xl border border-mist bg-paperdim transition-transform duration-300 hover:scale-[1.02] sm:w-72"
     >
       <div className="relative aspect-[9/16] w-full overflow-hidden bg-ink/10">
-        {/* Always visible: shows the uploaded thumbnail if set, otherwise the
-            video's own first frame (native `poster` + preload behavior), so
-            the card never looks blank before it's played. */}
         <video
           ref={videoRef}
           src={video.videoUrl}
